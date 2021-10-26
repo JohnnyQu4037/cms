@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { Button, Checkbox, Form, Input, Radio, Space, Typography } from "antd";
+import { Button, Checkbox, Form, Input, Radio, Typography } from "antd";
 import { useRouter } from "next/router";
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
 import { AES } from "crypto-js";
@@ -14,8 +14,8 @@ export const StyledTitle = styled(Title)`
 
 export const FormContainer = styled.section`
   display: flex;
-  margin-left: 25%;
-  width: 50%;
+  margin-left: 33.3%;
+  width: 33.3%;
   height: 100%;
 `;
 
@@ -107,11 +107,9 @@ export default function Login() {
             />
           </Form.Item>
 
-          <Form.Item name="remember" valuePropName="checked" noStyle>
+          <Form.Item name="remember" valuePropName="checked">
             <Checkbox>记住我</Checkbox>
           </Form.Item>
-          <br />
-          <br />
           <Form.Item>
             <SubmitButton type="primary" htmlType="submit">
               登录

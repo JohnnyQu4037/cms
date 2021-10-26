@@ -7,12 +7,6 @@ import { AES } from "crypto-js";
 
 const { Title } = Typography;
 
-const testAccount = {
-  email: "123@abc.com",
-  password: "12345678",
-  user_group: "Student",
-};
-
 export const StyledTitle = styled(Title)`
   text-align: center;
   margin: 20px 0;
@@ -49,18 +43,19 @@ export default function Login() {
         password: AES.encrypt(password, "cms").toString(),
       })
       .then((response) => {
-        console.log(response);
-        console.log("success");
-        router.push("dashboard");
+        if (response.status === 201){
+          localStorage.setItem('cms_token',JSON.stringify(response.data.data))
+          router.push("dashboard");
+        }
       })
-      .catch((response) => {
-        console.log(response);
+      .catch((error) => {
+        alert("Oops, there's something wrong.\n"+error.response.data.msg)
       });
   };
 
   const userGroupChange = (event) => {
     form.resetFields();
-    form.setFieldsValue({ user_group: event.target.value });
+    form.setFieldsValue({ role: event.target.value });
   };
 
   return (
@@ -75,14 +70,14 @@ export default function Login() {
           form={form}
         >
           <Form.Item
-            name="user_group"
-            initialValue="Student"
+            name="role"
+            initialValue="manager"
             rules={[{ required: true }]}
           >
             <Radio.Group onChange={userGroupChange}>
-              <Radio.Button value="Student">Student</Radio.Button>
-              <Radio.Button value="Teacher">Teacher</Radio.Button>
-              <Radio.Button value="Manager">Manager</Radio.Button>
+              <Radio.Button value="student">Student</Radio.Button>
+              <Radio.Button value="teacher">Teacher</Radio.Button>
+              <Radio.Button value="manager">Manager</Radio.Button>
             </Radio.Group>
           </Form.Item>
           <Form.Item

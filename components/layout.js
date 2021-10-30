@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Layout, Menu, Avatar } from "antd";
+import { Layout, Menu, Avatar, Dropdown } from "antd";
 import axios from "axios";
 import {
   DashboardOutlined,
@@ -64,6 +64,14 @@ export default function ManagerLayout({ children }) {
   const [collapsed, setCollapsed] = useState(false);
   const baseURL = "/dashboard/manager";
   const router = useRouter();
+
+  const logoutPopup = (
+    <Menu>
+      <Menu.Item key="logout_0" onClick={logOut}>
+        <a>Logout</a>
+      </Menu.Item>
+    </Menu>
+  );
 
   function logOut() {
     const token = localStorage.getItem("cms_token")
@@ -150,8 +158,10 @@ export default function ManagerLayout({ children }) {
               style: { color: "white" },
             }
           )}
-          <AvatarContainer onClick={logOut}>
-            <Avatar icon={<UserOutlined />} />
+          <AvatarContainer>
+            <Dropdown overlay={logoutPopup}>
+              <Avatar icon={<UserOutlined />} />
+            </Dropdown>
           </AvatarContainer>
         </StyledHeader>
         <StyledContent>{children}</StyledContent>

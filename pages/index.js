@@ -4,6 +4,7 @@ import { Button, Checkbox, Form, Input, Radio, Typography } from "antd";
 import { useRouter } from "next/router";
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
 import { AES } from "crypto-js";
+import { login } from "./api/api-service";
 
 const { Title } = Typography;
 
@@ -31,26 +32,16 @@ export default function Login() {
   const [form] = Form.useForm();
   const router = useRouter();
 
-  const baseURL = "https://cms.chtoma.com/api";
-  const axios = require("axios");
-
   const submitForm = async (request) => {
     const { password, ...rest } = request;
-
-    axios
-      .post(baseURL + "/login", {
-        ...rest,
-        password: AES.encrypt(password, "cms").toString(),
-      })
-      .then((response) => {
-        if (response.status === 201){
-          localStorage.setItem('cms_token',JSON.stringify(response.data.data))
+    login({ ...rest, password: AES.encrypt(password, "cms").toString() }).then(
+      (response) => {
+        if (response.code === 201) {
+          localStorage.setItem("cms_token", JSON.stringify(response.data));
           router.push("dashboard");
         }
-      })
-      .catch((error) => {
-        alert("Oops, there's something wrong.\n"+error.response.data.msg)
-      });
+      }
+    );
   };
 
   const userGroupChange = (event) => {

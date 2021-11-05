@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Layout, Menu, Avatar, Dropdown } from "antd";
-import axios from "axios";
 import {
   DashboardOutlined,
   SolutionOutlined,
@@ -18,6 +17,7 @@ import {
 import styled from "styled-components";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { logout } from "../pages/api/api-service";
 
 const { Header, Content, Sider } = Layout;
 const { SubMenu } = Menu;
@@ -50,10 +50,10 @@ const AvatarContainer = styled.div`
 `;
 
 const StyledHeader = styled(Header)`
+  top: 0;
   display: flex;
   -webkit-box-pack: justify;
   justify-content: space-between;
-  -webkit-box-align: center;
   align-items: center;
   position: sticky;
   padding: 0 50px;
@@ -74,33 +74,14 @@ export default function ManagerLayout({ children }) {
   );
 
   function logOut() {
-    const token = localStorage.getItem("cms_token")
-      ? JSON.parse(localStorage.getItem("cms_token")).token
-      : null;
-    if (!token) {
-      router.push("/");
-      return;
-    }
-
-    axios
-      .post(
-        "https://cms.chtoma.com/api/logout",
-        {},
-        {
-          headers: {
-            Authorization: "Bearer " + token,
-          },
-        }
-      )
+    logout()
       .then(() => {
         router.push("/");
       })
-      .catch((error) => {
-        alert("Oops, there's something wrong.\n" + error.response.data.msg);
-      });
+      .catch(() => router.push("/"));
   }
   return (
-    <Layout style={{ minHeight: "100vh" }}>
+    <Layout style={{ height: "100vh" }}>
       <Sider
         collapsible
         collapsed={collapsed}
@@ -146,7 +127,11 @@ export default function ManagerLayout({ children }) {
         </Menu>
       </Sider>
 
-      <Layout className="site-layout">
+      <Layout
+        style={{
+          overflow: "auto",
+        }}
+      >
         <StyledHeader className="site-layout-background">
           {React.createElement(
             collapsed ? MenuUnfoldOutlined : MenuFoldOutlined,

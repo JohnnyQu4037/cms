@@ -8,14 +8,18 @@ import {
   Modal,
   Form,
   Select,
-  message,
 } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import styled from "styled-components";
-import { useState, useEffect, useMemo } from "react";
-import axios from "axios";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { formatDistanceToNow } from "date-fns";
 import { debounce } from "lodash";
+import {
+  deleteRecord,
+  editStudent,
+  addStudent,
+  dataEnquiry,
+} from "../../../api/api-service";
 
 const { Search } = Input;
 const StyledContent = styled.div`
@@ -33,16 +37,13 @@ const SubmitButton = styled(Button)`
 `;
 
 export default function Students() {
-  const baseURL = "https://cms.chtoma.com/api/students";
+  const _ = require("lodash");
   const countryOptions = ["China", "Australia", "Canada", "New Zealand"];
   const [data, setData] = useState([]);
-  const [currentIndex, setCurrentIndex] = useState(null);
-  const [totalRecords, setTotalRecords] = useState(0);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageLimit, setPageLimit] = useState(20);
+  const [pageInfo, setPageInfo] = useState({ page: 1, limit: 20, total: 0 });
   const [isLoading, setIsLoading] = useState(false);
   const [currentQuery, setCurrentQuery] = useState("");
-  const [isEditing, setIsEditing] = useState(false);
+  const [editingStudent, setEditingStudent] = useState(null);
   const [isShown, setIsShown] = useState(false);
 
   const columns = [
@@ -104,13 +105,12 @@ export default function Students() {
     {
       title: "Action",
 
-      render: (_1, _2, index) => (
+      render: (_, record) => (
         <Space size="middle">
           <a
             onClick={() => {
-              setIsEditing(true);
+              setEditingStudent(record);
               setIsShown(true);
-              setCurrentIndex(index);
             }}
           >
             Edit
@@ -118,7 +118,16 @@ export default function Students() {
           <Popconfirm
             title="Are you sure to delete?"
             onConfirm={() => {
-              deleteRecord(data[index].id, index);
+              setIsLoading(true);
+              deleteRecord(`students/${record.id}`).then((res) => {
+                if (res) {
+                  const filteredData = data.filter((item) => {
+                    return item.id !== record.id;
+                  });
+                  setData(filteredData);
+                }
+              });
+              setIsLoading(false);
             }}
             okText="Confirm"
             cancelText="Cancel"
@@ -130,85 +139,30 @@ export default function Students() {
     },
   ];
 
-  const debouncedFetchData = useMemo(
-    () =>
-      debounce((e) => {
-        fetchData(1, pageLimit, e.target.value);
-      }, 1000),
-    []
-  );
-
-  const fetchData = (updatePage, updateLimit, updateQuery) => {
+  const fetchData = useCallback((updatedPage, updatedQuery) => {
     setIsLoading(true);
-    const token = localStorage.getItem("cms_token")
-      ? JSON.parse(localStorage.getItem("cms_token")).token
-      : null;
-    if (!token) {
-      router.push("/");
-      return;
-    }
-    axios
-      .get(
-        baseURL +
-          `?page=${updatePage}&limit=${updateLimit}` +
-          (updateQuery !== "" ? `&query=${updateQuery}` : ""),
-        {
-          headers: {
-            Authorization: "Bearer " + token,
-          },
-        }
-      )
-      .then((res) => {
-        setData(res.data.data.students);
-        setCurrentPage(updatePage);
-        setPageLimit(updateLimit);
-        setTotalRecords(res.data.data.total);
-        setIsLoading(false);
-        setCurrentQuery(updateQuery);
-      })
-      .catch((error) => {
-        alert("Oops, there's something wrong.\n" + error.response.data.msg);
+    dataEnquiry(updatedPage, updatedQuery).then((res) => {
+      setData(res.students);
+      setPageInfo({
+        page: res.paginator.page,
+        limit: res.paginator.limit,
+        total: res.total,
       });
-  };
+      setCurrentQuery(updatedQuery);
+      setIsLoading(false);
+    });
+  }, []);
+
+  const debouncedFetchData = useMemo(() => debounce(fetchData, 1000), []);
 
   useEffect(() => {
-    fetchData(currentPage, pageLimit, currentQuery);
-    return () => {
-      debouncedFetchData.cancel();
-    };
+    fetchData(pageInfo, currentQuery);
   }, []);
 
   const reset = () => {
-    setIsEditing(false);
+    setEditingStudent(null);
     setIsShown(false);
-    setCurrentIndex(null);
   };
-
-  function deleteRecord(id, index) {
-    setIsLoading(true);
-    const token = localStorage.getItem("cms_token")
-      ? JSON.parse(localStorage.getItem("cms_token")).token
-      : null;
-    if (!token) {
-      router.push("/");
-      return;
-    }
-    axios
-      .delete(baseURL + `/${id}`, {
-        headers: {
-          Authorization: "Bearer " + token,
-        },
-      })
-      .then((res) => {
-        const copiedData = JSON.parse(JSON.stringify(data));
-        copiedData.splice(index, 1);
-        setData(copiedData);
-        setIsLoading(false);
-      })
-      .catch((error) => {
-        alert("Oops, there's something wrong.\n" + error.response.data.msg);
-      });
-  }
 
   return (
     <>
@@ -234,15 +188,18 @@ export default function Students() {
           rowKey="id"
           onChange={({ current, pageSize }) => {
             fetchData(
-              pageSize !== pageLimit ? 1 : current,
-              pageSize,
+              {
+                page: pageSize !== pageInfo.limit ? 1 : current,
+                limit: pageSize,
+                total: pageInfo.total,
+              },
               currentQuery
             );
           }}
           pagination={{
-            pageSize: pageLimit,
-            current: currentPage,
-            total: totalRecords,
+            pageSize: pageInfo.limit,
+            current: pageInfo.page,
+            total: pageInfo.total,
           }}
         />
       </Spin>
@@ -252,7 +209,7 @@ export default function Students() {
         centered
         destroyOnClose={true}
         maskClosable={false}
-        title={isEditing ? "Edit Student" : "Add Student"}
+        title={editingStudent ? "Edit Student" : "Add Student"}
         footer={[
           <Button key="cancel" onClick={reset}>
             Cancel
@@ -272,61 +229,27 @@ export default function Students() {
               return;
             }
 
-            values.type =
-              values.type === "tester"
-                ? 1
-                : values.type === "developer"
-                ? 2
-                : values.type;
-
-            !isEditing
-              ? axios
-                  .post(baseURL, values, {
-                    headers: {
-                      Authorization: "Bearer " + token,
-                    },
-                  })
-                  .then(() => {
-                    reset();
-                    setIsLoading(false);
-                    message.success("success");
-                  })
-                  .catch((error) => {
-                    alert("Oops, there's something wrong.\n" + error.response);
-                  })
-              : axios
-                  .put(
-                    baseURL,
-                    { ...values, id: data[currentIndex].id },
-                    {
-                      headers: {
-                        Authorization: "Bearer " + token,
-                      },
-                    }
-                  )
-                  .then(() => {
-                    reset();
-
-                    const copiedData = JSON.parse(JSON.stringify(data));
-                    copiedData[currentIndex].name = values.name;
-                    copiedData[currentIndex].email = values.email;
-                    copiedData[currentIndex].country = values.country;
-                    copiedData[currentIndex].type.name =
-                      values.type === 1 ? "tester" : "developer";
-
-                    setData(copiedData);
-                    setIsLoading(false);
-                    message.success("success");
-                  })
-                  .catch((error) => {
-                    alert("Oops, there's something wrong.\n" + error.response);
-                  });
+            if (editingStudent) {
+              values.id = editingStudent.id;
+              editStudent("students", values).then((res) => {
+                const index = data.findIndex((item) => item.id === res.id);
+                data[index] = res;
+                setData([...data]);
+                reset();
+                setIsLoading(false);
+              });
+            } else {
+              addStudent("students", values).then(() => {
+                reset();
+                setIsLoading(false);
+              });
+            }
           }}
           initialValues={{
-            name: data[currentIndex]?.name,
-            email: data[currentIndex]?.email,
-            country: data[currentIndex]?.country,
-            type: data[currentIndex]?.type.name,
+            name: editingStudent?.name,
+            email: editingStudent?.email,
+            country: editingStudent?.country,
+            type: editingStudent?.type.name,
           }}
         >
           <Form.Item label="Name" name="name" rules={[{ required: true }]}>
@@ -362,7 +285,7 @@ export default function Students() {
             </Select>
           </Form.Item>
           <SubmitButton type="primary" htmlType="submit">
-            {isEditing ? "Update" : "Add"}
+            {editingStudent ? "Update" : "Add"}
           </SubmitButton>
         </Form>
       </Modal>

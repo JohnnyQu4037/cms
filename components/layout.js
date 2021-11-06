@@ -18,6 +18,7 @@ import styled from "styled-components";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { logout } from "../pages/api/api-service";
+import CMSBreadcrumb from "./CMSBreadcrumb";
 
 const { Header, Content, Sider } = Layout;
 const { SubMenu } = Menu;
@@ -149,6 +150,9 @@ export default function ManagerLayout({ children }) {
             </Dropdown>
           </AvatarContainer>
         </StyledHeader>
+
+        <CMSBreadcrumb/> 
+
         <StyledContent>{children}</StyledContent>
       </Layout>
     </Layout>

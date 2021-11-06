@@ -14,6 +14,7 @@ import styled from "styled-components";
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { formatDistanceToNow } from "date-fns";
 import { debounce } from "lodash";
+import Link from 'next/link';
 import {
   deleteRecord,
   editStudent,
@@ -55,7 +56,9 @@ export default function Students() {
     {
       title: "Name",
       dataIndex: "name",
-      render: (name) => <a>{name}</a>,
+      render: (_,record) =>{
+        return <Link href={`/dashboard/manager/students/${record.id}`}>{record.name}</Link>
+      } ,
       sortDirections: ["ascend", "descend"],
       sorter: (a, b) => {
         return a.name.charAt(0) > b.name.charAt(0)
@@ -178,7 +181,12 @@ export default function Students() {
         </Button>
         <LongSearchBar
           placeholder="Search by name"
-          onChange={debouncedFetchData}
+          onChange={(e)=>{debouncedFetchData({
+            page:pageInfo.page,
+            limit: pageInfo.limit,
+            total: pageInfo.total,
+          },
+          e.target.value)}}
         />
       </StyledContent>
       <Spin spinning={isLoading}>

@@ -110,7 +110,7 @@ export const dataEnquiry = (pageInfo, query) => {
     `students?page=${pageInfo.page}&limit=${pageInfo.limit}` +
     (query !== "" ? `&query=${query}` : "");
   return getRequest(path).then((res) => {
-    return res.data;
+    return res?.data;
   });
 };
 
@@ -125,4 +125,12 @@ export const logout = () => {
     return;
   }
   return postRequest("logout", {});
+};
+
+export const getStudentInfo = (id) => {
+  const path =
+    `students/${id}`;
+  return getRequest(path).then((res) => {
+    return res?.data;
+  });
 };

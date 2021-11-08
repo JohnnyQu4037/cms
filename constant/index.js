@@ -1,5 +1,3 @@
-import { ExceptionMap } from "antd/lib/result";
-
 export const routeConstants = {
   manager: {
     mainTab: {

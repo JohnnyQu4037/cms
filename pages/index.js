@@ -51,7 +51,7 @@ export default function Login() {
 
   return (
     <>
-      <StyledTitle>课程管理助手</StyledTitle>
+      <StyledTitle>Course Management Assistant</StyledTitle>
 
       <FormContainer>
         <CustomizedForm
@@ -74,36 +74,36 @@ export default function Login() {
           <Form.Item
             name="email"
             rules={[
-              { required: true, message: "请输入您的邮箱" },
+              { required: true, message: "Please input your email" },
               { type: "email" },
             ]}
           >
             <Input
               prefix={<UserOutlined />}
               type="email"
-              placeholder="请输入邮箱"
+              placeholder="Please input email"
             />
           </Form.Item>
           <Form.Item
             name="password"
             rules={[
-              { required: true, message: "请输入您的密码" },
+              { required: true, message: "Please input your password" },
               { min: 4, max: 16 },
             ]}
           >
             <Input
               prefix={<LockOutlined />}
               type="password"
-              placeholder="请输入密码"
+              placeholder="Please input password"
             />
           </Form.Item>
 
           <Form.Item name="remember" valuePropName="checked">
-            <Checkbox>记住我</Checkbox>
+            <Checkbox>Remember me</Checkbox>
           </Form.Item>
           <Form.Item>
             <SubmitButton type="primary" htmlType="submit">
-              登录
+              Sign in
             </SubmitButton>
           </Form.Item>
         </CustomizedForm>

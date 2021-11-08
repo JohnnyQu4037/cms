@@ -1,6 +1,6 @@
 import { Breadcrumb } from "antd";
 import { useRouter } from "next/router";
-import { routeConstants } from "./constant";
+import { routeConstants } from "../constant";
 import Link from "next/link";
 import { Fragment } from "react";
 

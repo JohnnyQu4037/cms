@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { getStudentInfo } from "../../../api/api-service";
 import { Card, Col, Row, Tag, Table, Avatar } from "antd";
 import styled from "styled-components";
-import { programLanguageColors } from "../../../../components/constant";
+import { programLanguageColors } from "../../../../constant";
 
 const H3 = styled.h3`
   color: rgb(115, 86, 241);
@@ -28,33 +28,38 @@ const tabListNoTitle = [
   },
 ];
 
-export default function StudentDetail() {
+export async function getServerSideProps(context) {
+  const { id } = context.params;
+  return {
+    props: { studentId: id },
+  };
+}
+
+export default function StudentDetail(studentId) {
   const [studentInfo, setStudentInfo] = useState(null);
   const [activeTabKey, setActiveTabKey] = useState("About");
   const router = useRouter();
-  const { id } = router.query;
+  const id = router.query.id || studentId;
 
   const columns = [
     {
-      title: 'No.',
-      key: 'index',
+      title: "No.",
+      key: "index",
       render: (_1, _2, index) => index + 1,
     },
     {
-      title: 'Name',
-      dataIndex: 'name',
-      render: (value) => (
-        <a >{value}</a>
-      ),
+      title: "Name",
+      dataIndex: "name",
+      render: (value) => <a>{value}</a>,
     },
     {
-      title: 'Type',
-      dataIndex: 'type',
-      render: (type) => type.map((item) => item.name).join(','),
+      title: "Type",
+      dataIndex: "type",
+      render: (type) => type.map((item) => item.name).join(","),
     },
     {
-      title: 'Join Time',
-      dataIndex: 'createdAt',
+      title: "Join Time",
+      dataIndex: "createdAt",
     },
   ];
 
@@ -119,17 +124,19 @@ export default function StudentDetail() {
     ),
     Courses: (
       <>
-        <Table dataSource={studentInfo?.courses} columns={columns} rowKey="id"/>
+        <Table
+          dataSource={studentInfo?.courses}
+          columns={columns}
+          rowKey="id"
+        />
       </>
     ),
   };
 
   useEffect(() => {
-    if (id) {
-      getStudentInfo(id).then((res) => {
-        setStudentInfo(res);
-      });
-    }
+    getStudentInfo(id).then((res) => {
+      setStudentInfo(res);
+    });
   }, [id]);
 
   return (
@@ -154,7 +161,7 @@ export default function StudentDetail() {
                 {["Name", "Age", "Email", "Phone"].map((item) => (
                   <Col
                     span={12}
-                    key={studentInfo?.item}
+                    key={item}
                     style={{ textAlign: "center" }}
                   >
                     <b>{item}</b>

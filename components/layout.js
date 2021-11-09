@@ -1,15 +1,6 @@
 import React, { useState } from "react";
 import { Layout, Menu, Avatar, Dropdown } from "antd";
 import {
-  DashboardOutlined,
-  SolutionOutlined,
-  DeploymentUnitOutlined,
-  ReadOutlined,
-  ProjectOutlined,
-  FileAddOutlined,
-  EditOutlined,
-  MessageOutlined,
-  TeamOutlined,
   MenuUnfoldOutlined,
   MenuFoldOutlined,
   UserOutlined,
@@ -19,8 +10,9 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { logout } from "../pages/api/api-service";
 import CMSBreadcrumb from "./CMSBreadcrumb";
+import { routes } from "../constant/routes";
 
-const { Header, Content, Sider } = Layout;
+const { Header, Sider } = Layout;
 const { SubMenu } = Menu;
 
 const Logo = styled.div`
@@ -61,10 +53,39 @@ const StyledHeader = styled(Header)`
   z-index: 10;
 `;
 
-export default function ManagerLayout({ children }) {
-  const [collapsed, setCollapsed] = useState(false);
-  const baseURL = "/dashboard/manager";
+export default function AppLayout({ children }) {
   const router = useRouter();
+  const userRole = router.pathname.split("/")[2];
+  const [collapsed, setCollapsed] = useState(false);
+
+  const renderMenuItems = (data, parent) => {
+    return data.map((item, index) => {
+      if (item.subNav) {
+        return (
+          <SubMenu key={item.label + index} title={item.label} icon={item.icon}>
+            {renderMenuItems(item.subNav, item.path)}
+          </SubMenu>
+        );
+      } else {
+        return (
+          <Menu.Item
+            key={item.label + index}
+            title={item.label}
+            icon={item.icon}
+          >
+            <Link
+              href={["/dashboard", userRole, parent, item.path]
+                .filter((item) => !!item)
+                .join("/")}
+            >
+              {item.label}
+            </Link>
+          </Menu.Item>
+        );
+      }
+    });
+  };
+  const menuItems = renderMenuItems(routes[userRole]);
 
   const logoutPopup = (
     <Menu>
@@ -81,6 +102,7 @@ export default function ManagerLayout({ children }) {
       })
       .catch(() => router.push("/"));
   }
+
   return (
     <Layout style={{ height: "100vh" }}>
       <Sider
@@ -92,39 +114,7 @@ export default function ManagerLayout({ children }) {
       >
         <Logo>CMS</Logo>
         <Menu theme="dark" defaultSelectedKeys={["1"]} mode="inline">
-          <Menu.Item key="1" icon={<DashboardOutlined />}>
-            <Link href={baseURL}>Overview</Link>
-          </Menu.Item>
-
-          <SubMenu key="sub1" icon={<SolutionOutlined />} title="Student">
-            <Menu.Item key="2" icon={<TeamOutlined />}>
-              <Link href={baseURL + "/students"}>Student List</Link>
-            </Menu.Item>
-          </SubMenu>
-
-          <SubMenu key="sub2" icon={<DeploymentUnitOutlined />} title="Teacher">
-            <Menu.Item key="3" icon={<TeamOutlined />}>
-              <Link href={baseURL + "/teachers"}>Teacher List</Link>
-            </Menu.Item>
-          </SubMenu>
-
-          <SubMenu key="sub3" icon={<ReadOutlined />} title="Course">
-            <Menu.Item key="4" icon={<ProjectOutlined />}>
-              <Link href={baseURL + "/courses"}>All Courses</Link>
-            </Menu.Item>
-            <Menu.Item key="5" icon={<FileAddOutlined />}>
-              <Link href={baseURL + "/courses/add-course"}>Add Course</Link>
-            </Menu.Item>
-            <Menu.Item key="6" icon={<EditOutlined />}>
-              <Link href={baseURL + "/courses/edit-course"}>
-                <a>Edit Course</a>
-              </Link>
-            </Menu.Item>
-          </SubMenu>
-
-          <Menu.Item key="7" icon={<MessageOutlined />}>
-            <Link href={baseURL + "/message"}>Message</Link>
-          </Menu.Item>
+          {menuItems}
         </Menu>
       </Sider>
 
@@ -151,7 +141,7 @@ export default function ManagerLayout({ children }) {
           </AvatarContainer>
         </StyledHeader>
 
-        <CMSBreadcrumb/> 
+        <CMSBreadcrumb />
 
         <StyledContent>{children}</StyledContent>
       </Layout>

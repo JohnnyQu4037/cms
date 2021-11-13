@@ -1,3 +1,3 @@
-Steps for homework 6:
+Steps for homework 7:
 
-1. restructuring the data model and change the app layout and bread crumbs base on it.
+1. 

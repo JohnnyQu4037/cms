@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { Layout, Menu, Avatar, Dropdown } from "antd";
 import {
   MenuUnfoldOutlined,
@@ -58,7 +58,7 @@ export default function AppLayout({ children }) {
   const userRole = router.pathname.split("/")[2];
   const [collapsed, setCollapsed] = useState(false);
 
-  const renderMenuItems = (data, parent) => {
+  const renderMenuItems = useCallback((data, parent) => {
     return data.map((item, index) => {
       if (item.subNav) {
         return (
@@ -84,7 +84,7 @@ export default function AppLayout({ children }) {
         );
       }
     });
-  };
+  },[]) 
   const menuItems = renderMenuItems(routes[userRole]);
 
   const logoutPopup = (

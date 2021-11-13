@@ -58,21 +58,46 @@ export default function AppLayout({ children }) {
   const userRole = router.pathname.split("/")[2];
   const [collapsed, setCollapsed] = useState(false);
 
+  const remainingPath = router.pathname.split("/").slice(3);
+
+  let data = routes[userRole];
+
+  const findKeys = () => {
+    let open = "";
+    let select = "";
+    if (remainingPath.length === 0) {
+      const result = data.filter((item) => item?.path === "");
+      select = result[0]?.label;
+    } else {
+      remainingPath.map((item) => {
+        const currentData = data.filter((i) => i.path === item)[0];
+        if (currentData?.subNav) {
+          open = currentData.label;
+          select = currentData.subNav.filter((i) => i.path === "")[0].label;
+          data = currentData.subNav;
+        } else {
+          if (currentData?.label !== undefined) {
+            select = currentData?.label;
+          }
+        }
+      });
+    }
+    return { openKeys: open, selectKeys: select };
+  };
+
+  const { openKeys, selectKeys } = findKeys();
+
   const renderMenuItems = useCallback((data, parent) => {
-    return data.map((item, index) => {
+    return data.map((item) => {
       if (item.subNav) {
         return (
-          <SubMenu key={item.label + index} title={item.label} icon={item.icon}>
+          <SubMenu key={item.label} title={item.label} icon={item.icon}>
             {renderMenuItems(item.subNav, item.path)}
           </SubMenu>
         );
       } else {
         return (
-          <Menu.Item
-            key={item.label + index}
-            title={item.label}
-            icon={item.icon}
-          >
+          <Menu.Item key={item.label} title={item.label} icon={item.icon}>
             <Link
               href={["/dashboard", userRole, parent, item.path]
                 .filter((item) => !!item)
@@ -84,7 +109,8 @@ export default function AppLayout({ children }) {
         );
       }
     });
-  },[]) 
+  }, []);
+
   const menuItems = renderMenuItems(routes[userRole]);
 
   const logoutPopup = (
@@ -113,7 +139,12 @@ export default function AppLayout({ children }) {
         }}
       >
         <Logo>CMS</Logo>
-        <Menu theme="dark" defaultSelectedKeys={["1"]} mode="inline">
+        <Menu
+          theme="dark"
+          defaultOpenKeys={[openKeys]}
+          defaultSelectedKeys={[selectKeys]}
+          mode="inline"
+        >
           {menuItems}
         </Menu>
       </Sider>

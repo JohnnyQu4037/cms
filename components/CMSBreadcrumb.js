@@ -2,6 +2,7 @@ import { Breadcrumb } from "antd";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { routes } from "../constant/routes";
+import { Fragment } from "react";
 
 export default function CMSBreadcrumb() {
   const router = useRouter();
@@ -20,23 +21,23 @@ export default function CMSBreadcrumb() {
       return translatedBCList.map((item, index) => {
         if (typeof item === "object" && index === translatedBCList.length - 1) {
           return (
-            <>
-              <Breadcrumb.Item key={index}>{item.main}</Breadcrumb.Item>
-              <Breadcrumb.Item key={index + 1}>{item.sub}</Breadcrumb.Item>
-            </>
+            <Fragment key={item.main}>
+              <Breadcrumb.Item>{item.main}</Breadcrumb.Item>
+              <Breadcrumb.Item>{item.sub}</Breadcrumb.Item>
+            </Fragment>
           );
         } else {
           if (typeof item === "object") {
             return (
-              <>
-                <Breadcrumb.Item key={index}>{item.main}</Breadcrumb.Item>
-                <Breadcrumb.Item key={index + 1}>
-                  <Link href={root +"/"+ item.link}>{item.sub}</Link>
+              <Fragment key={item.main}>
+                <Breadcrumb.Item>{item.main}</Breadcrumb.Item>
+                <Breadcrumb.Item>
+                  <Link href={root + "/" + item.link}>{item.sub}</Link>
                 </Breadcrumb.Item>
-              </>
+              </Fragment>
             );
           } else {
-            return <Breadcrumb.Item key={index}>{item}</Breadcrumb.Item>;
+            return <Breadcrumb.Item key={item}>{item}</Breadcrumb.Item>;
           }
         }
       });
@@ -74,6 +75,7 @@ export default function CMSBreadcrumb() {
       <Link href={root}>{`CMS ${userRole.toUpperCase()} SYSTEM`}</Link>
     </Breadcrumb.Item>,
   ].concat(extraBreadcrumbItems());
+
   return (
     <Breadcrumb key={root} style={{ margin: "0 16px", padding: 16 }}>
       {breadcrumbItems}

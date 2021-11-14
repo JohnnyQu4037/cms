@@ -53,39 +53,39 @@ const StyledHeader = styled(Header)`
   z-index: 10;
 `;
 
+const findKeys = (remainingPath, user) => {
+  let data = routes[user];
+  let open = [];
+  let select = "";
+  if (remainingPath.length === 0) {
+    const result = data.filter((item) => item?.path === "");
+    select = result[0]?.label;
+  } else {
+    remainingPath.map((item) => {
+      const currentData = data.filter((i) => i.path === item)[0];
+      if (currentData?.subNav) {
+        open.push(currentData.label);
+        select = currentData.subNav.filter((i) => i.path === "")[0]?.label;
+        data = currentData?.subNav;
+      } else {
+        if (currentData?.label !== undefined) {
+          select = currentData?.label;
+        }
+      }
+    });
+  }
+  return { openKeys: open, selectKeys: select };
+};
+
 export default function AppLayout({ children }) {
   const router = useRouter();
   const userRole = router.pathname.split("/")[2];
   const [collapsed, setCollapsed] = useState(false);
 
-  const remainingPath = router.pathname.split("/").slice(3);
-
-  let data = routes[userRole];
-
-  const findKeys = () => {
-    let open = "";
-    let select = "";
-    if (remainingPath.length === 0) {
-      const result = data.filter((item) => item?.path === "");
-      select = result[0]?.label;
-    } else {
-      remainingPath.map((item) => {
-        const currentData = data.filter((i) => i.path === item)[0];
-        if (currentData?.subNav) {
-          open = currentData.label;
-          select = currentData.subNav.filter((i) => i.path === "")[0].label;
-          data = currentData.subNav;
-        } else {
-          if (currentData?.label !== undefined) {
-            select = currentData?.label;
-          }
-        }
-      });
-    }
-    return { openKeys: open, selectKeys: select };
-  };
-
-  const { openKeys, selectKeys } = findKeys();
+  const { openKeys, selectKeys } = findKeys(
+    router.pathname.split("/").slice(3),
+    userRole
+  );
 
   const renderMenuItems = useCallback((data, parent) => {
     return data.map((item) => {
@@ -141,7 +141,7 @@ export default function AppLayout({ children }) {
         <Logo>CMS</Logo>
         <Menu
           theme="dark"
-          defaultOpenKeys={[openKeys]}
+          defaultOpenKeys={openKeys}
           defaultSelectedKeys={[selectKeys]}
           mode="inline"
         >

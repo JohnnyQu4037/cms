@@ -13,6 +13,34 @@ export default function CMSBreadcrumb() {
 
   const userRole = path.split("/")[2];
   const data = routes[userRole];
+
+  const generateBreadCrumbList = (pathList) => {
+    let possiblePaths = data;
+    pathList.map((item, index) => {
+      const currentBC = possiblePaths.filter(
+        (i) => i.path === pathList[index]
+      )[0];
+      if (currentBC?.subNav) {
+        pathList[index] = {
+          main: currentBC.label,
+          sub: currentBC.subNav.filter((i) => i.path === "")[0].label,
+          link: currentBC.path,
+        };
+        possiblePaths = currentBC.subNav;
+      } else {
+        if (item === "[id]") {
+          pathList[index] = "Detail";
+        } else {
+          if (index !== 0) {
+            pathList[index - 1] = pathList[index - 1].main;
+          }
+          pathList[index] = currentBC.label;
+        }
+      }
+    });
+    return pathList;
+  };
+
   const extraBreadcrumbItems = () => {
     if (remainingPath.length === 0) {
       return <Breadcrumb.Item key="root">Overview</Breadcrumb.Item>;
@@ -42,32 +70,6 @@ export default function CMSBreadcrumb() {
         }
       });
     }
-  };
-  const generateBreadCrumbList = (pathList) => {
-    let possiblePaths = data;
-    pathList.map((item, index) => {
-      const currentBC = possiblePaths.filter(
-        (i) => i.path === pathList[index]
-      )[0];
-      if (currentBC?.subNav) {
-        pathList[index] = {
-          main: currentBC.label,
-          sub: currentBC.subNav.filter((i) => i.path === "")[0].label,
-          link: currentBC.path,
-        };
-        possiblePaths = currentBC.subNav;
-      } else {
-        if (item === "[id]") {
-          pathList[index] = "Detail";
-        } else {
-          if (index !== 0) {
-            pathList[index - 1] = pathList[index - 1].main;
-          }
-          pathList[index] = currentBC.label;
-        }
-      }
-    });
-    return pathList;
   };
 
   const breadcrumbItems = [

@@ -1,6 +1,3 @@
-
 export default function StudentDetail(props) {
-return(
-  <div>course id page</div>
-)
+  return <div>course id page</div>;
 }

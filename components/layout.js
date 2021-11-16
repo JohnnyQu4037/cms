@@ -150,6 +150,7 @@ export default function AppLayout({ children }) {
       </Sider>
 
       <Layout
+        id="contentLayout"
         style={{
           overflow: "auto",
         }}

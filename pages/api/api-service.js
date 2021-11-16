@@ -128,8 +128,14 @@ export const logout = () => {
 };
 
 export const getStudentInfo = (id) => {
-  const path =
-    `students/${id}`;
+  const path = `students/${id}`;
+  return getRequest(path).then((res) => {
+    return res?.data;
+  });
+};
+
+export const getAllCourse = (pageNum) => {
+  const path = `courses?page=${pageNum+1}&limit=20`;
   return getRequest(path).then((res) => {
     return res?.data;
   });

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { List, Spin } from "antd";
+import { List, Spin,BackTop } from "antd";
 import InfiniteScroll from "react-infinite-scroll-component";
 import styled from "styled-components";
 import { getAllCourse } from "../../../api/api-service";
@@ -83,6 +83,7 @@ export default function Courses() {
           }}
         />
       </InfiniteScroll>
+      {/* <BackTop target ={()=>{return document.getElementById("contentLayout")}} /> */}
       <BackToTop />
     </>
   );

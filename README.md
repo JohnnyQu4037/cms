@@ -1,13 +1,13 @@
-Steps for homework 8:
+Steps for homework 9:
 
-1. retrieve data from server through api call.
+1. use the previous created course card to show the course information on the left of the page.
 
-2. create component that will be used to hold the data that was retrieved from server
+2. add one extra row of data and make it bordered
 
-3. use infinite scroll component to dynamically get data and append to the existing data list.
+3. create another card that contains detailed information of a course.
 
-4. pass the data to the card component
+4. use steps in the Status section to show the progress of a course
 
-5. dynamically fit cards into the display area.
+5. use the table to display the time of the course in a week
 
-6. add back to top component
+6. use Collapse component from antd to render the chapter section.

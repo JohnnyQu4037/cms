@@ -140,3 +140,10 @@ export const getAllCourse = (pageNum) => {
     return res?.data;
   });
 };
+
+export const getCourseInfo = (id) => {
+  const path = `courses/detail?id=${id}`;
+  return getRequest(path).then((res) => {
+    return res?.data;
+  });
+};

@@ -21,15 +21,27 @@ export async function getServerSideProps(context) {
   };
 }
 
-const generateExtra = (item,current) => {
+const generateExtra = (item, current) => {
   if (item.id < current) {
-    return(<Tag key = {item.id} color="default">finished</Tag>)
+    return (
+      <Tag key={item.id} color="default">
+        finished
+      </Tag>
+    );
   } else if (item.id > current) {
-    return(<Tag key = {item.id} color="orange">pending</Tag>)
+    return (
+      <Tag key={item.id} color="orange">
+        pending
+      </Tag>
+    );
   } else {
-    return(<Tag key = {item.id} color="green">processing</Tag>)
+    return (
+      <Tag key={item.id} color="green">
+        processing
+      </Tag>
+    );
   }
-}
+};
 
 export default function CourseDetail(courseId) {
   const router = useRouter();
@@ -97,13 +109,13 @@ export default function CourseDetail(courseId) {
               <H3>Description</H3>
               <Row>{courseInfo?.detail}</Row>
               <H3>Chapter</H3>
-              <Collapse activeKey = {courseInfo?.schedule.current}>
+              <Collapse defaultActiveKey = {courseInfo?.schedule.current}>
                 {courseInfo?.schedule.chapters.map((item) => {
                   return (
                     <Panel
                       header={item.name}
                       key={item.id}
-                      extra={generateExtra(item,courseInfo.schedule.current)}
+                      extra={generateExtra(item, courseInfo.schedule.current)}
                     >
                       <div>{item.content}</div>
                     </Panel>

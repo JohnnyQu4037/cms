@@ -35,6 +35,7 @@ const StyledContent = styled.div`
   background-color: rgb(255, 255, 255);
   padding: 16px;
   min-height: auto;
+  flex:auto
 `;
 
 const AvatarContainer = styled.div`

@@ -1,17 +1,17 @@
 import { message } from "antd";
 import axios from "axios";
 
-const baseURL = "https://cms.chtoma.com/api/";
+const baseURL = "http://cms.chtoma.com/api/";
 var successRegEx = /^[1-2][0-9][0-9]$/;
 
 const getToken = () => {
-  return localStorage.getItem("cms_token")
+  return localStorage?.getItem("cms_token")
     ? JSON.parse(localStorage.getItem("cms_token")).token
     : null;
 };
 
 const errorHandler = (error) => {
-  alert("Oops, there's something wrong.\n" + error.response.data.msg);
+  message.error("unknown error");
 };
 
 const deleteRequest = (path) => {
@@ -77,10 +77,14 @@ const getRequest = (path) => {
 };
 
 const renderMessage = (res) => {
-  if (successRegEx.test(res.code)) {
-    message.success(res.msg);
+  if (!res) {
+    return
   } else {
-    message.warning(res.msg);
+    if (successRegEx.test(res.code)) {
+      message.success(res.msg);
+    } else {
+      message.warning(res.msg);
+    }
   }
 };
 
@@ -135,7 +139,7 @@ export const getStudentInfo = (id) => {
 };
 
 export const getAllCourse = (pageNum) => {
-  const path = `courses?page=${pageNum+1}&limit=20`;
+  const path = `courses?page=${pageNum + 1}&limit=20`;
   return getRequest(path).then((res) => {
     return res?.data;
   });
@@ -144,6 +148,47 @@ export const getAllCourse = (pageNum) => {
 export const getCourseInfo = (id) => {
   const path = `courses/detail?id=${id}`;
   return getRequest(path).then((res) => {
+    return res?.data;
+  });
+};
+
+export const getCourseCode = () => {
+  const path = `courses/code`;
+  return getRequest(path).then((res) => {
+    return res?.data;
+  });
+};
+
+export const getCourseType = () => {
+  const path = `courses/type`;
+  return getRequest(path).then((res) => {
+    return res?.data;
+  });
+};
+
+export const getTeacherList = (query) => {
+  const path = `teachers?query=${query}`;
+  return getRequest(path).then((res) => {
+    return res?.data;
+  });
+};
+
+export const addCourse = (data) => {
+  return postRequest("courses", data).then((res) => {
+    renderMessage(res);
+    return res;
+  });
+};
+
+export const addSchedule = (data) => {
+  return putRequest("courses/schedule", data).then((res) => {
+    renderMessage(res);
+    return res.data;
+  });
+};
+
+export const getOverview = () => {
+  return getRequest(`statistics/overview`).then((res) => {
     return res?.data;
   });
 };
